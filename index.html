@@ -1,265 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>If You Were President</title>
-
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; min-height: 100vh; background: #000; color: white; overflow-x: hidden; }
-
-.difficulty-select { position: fixed; inset: 0; background: linear-gradient(135deg, #000 0%, #1a1a2e 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 15px; overflow-y: auto; }
-.difficulty-select.hidden { display: none; }
-.difficulty-container { max-width: 600px; width: 100%; text-align: center; padding: 10px 0; }
-.difficulty-title { font-size: 1.6em; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
-.difficulty-subtitle { font-size: 0.9em; opacity: 0.8; margin-bottom: 20px; }
-.difficulty-options { display: flex; flex-direction: column; gap: 12px; }
-.difficulty-btn { padding: 18px; border-radius: 12px; cursor: pointer; transition: all 0.3s; border: 3px solid transparent; }
-.difficulty-btn:active { transform: scale(0.98); }
-.difficulty-easy { background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #86efac; }
-.difficulty-medium { background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #fbbf24; }
-.difficulty-hardcore { background: linear-gradient(135deg, #dc2626, #991b1b); border-color: #ef4444; animation: pulse-red 2s infinite; }
-@keyframes pulse-red { 0%, 100% { box-shadow: 0 0 15px rgba(220, 38, 38, 0.5); } 50% { box-shadow: 0 0 30px rgba(220, 38, 38, 0.8); } }
-
-.difficulty-btn-title { font-size: 1.4em; font-weight: bold; margin-bottom: 6px; }
-.difficulty-btn-desc { font-size: 0.8em; opacity: 0.9; line-height: 1.3; }
-
-.game-layout { position: relative; min-height: 100vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), #1a1a2e; display: flex; flex-direction: column; padding: 15px; gap: 15px; }
-.stats-panel { background: rgba(0, 0, 0, 0.85); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 15px; backdrop-filter: blur(10px); }
-
-.title { text-align: center; font-size: 1.1em; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-.round-info { text-align: center; opacity: 0.8; margin-bottom: 12px; font-size: 0.85em; }
-
-.difficulty-badge { display: inline-block; padding: 3px 10px; border-radius: 15px; font-size: 0.7em; font-weight: bold; margin-left: 8px; }
-.badge-easy { background: #22c55e; color: white; }
-.badge-medium { background: #f59e0b; color: white; }
-.badge-hardcore { background: #dc2626; color: white; animation: pulse-red 2s infinite; }
-
-.stat-bar { margin-bottom: 10px; }
-.stat-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-track { height: 7px; background: rgba(255, 255, 255, 0.2); border-radius: 4px; overflow:hidden; border: 1px solid rgba(255,255,255,0.3); }
-.stat-fill { height:100%; transition: width 0.7s ease; }
-
-.stat-support { background: #22c55e; }
-.stat-rebellion { background: #ef4444; }
-.stat-morality { background: #a855f7; }
-.timer-bar { height: 4px; background: #fbbf24; transition: width linear; border-radius: 2px; margin-top: 8px; }
-.hardcore-warning { background: rgba(220,38,38,0.2); border: 2px solid #dc2626; border-radius: 8px; padding: 10px; margin: 10px 0; font-size: 0.75em; animation: pulse-red 2s infinite; }
-
-.president-area { text-align: center; padding: 15px; }
-.scenario-box { background: rgba(0,0,0,0.85); border: 2px solid rgba(255,255,255,0.4); border-radius: 12px; padding: 20px; backdrop-filter: blur(10px); }
-.scenario-title { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
-.scenario-text { font-style: italic; opacity: 0.9; line-height: 1.5; font-size: 0.9em; }
-
-.choices { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-.choice-btn { padding: 20px; background: rgba(0,0,0,0.85); border: 2px solid rgba(255,255,255,0.3); border-radius: 10px; cursor: pointer; text-align: center; color: white; transition: all 0.3s ease; backdrop-filter: blur(10px); }
-.choice-btn:active { background: rgba(255,255,255,0.15); border-color: rgba(255,215,0,0.7); transform: scale(0.98); }
-.mini-decision { background: linear-gradient(135deg, #7c3aed, #c026d3); border: 3px solid #fbbf24; }
-
-.video-screen { position: fixed; inset: 0; background: #000; display: none; align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
-.video-screen.active { display: flex; }
-.video-container { width: 100%; max-width: 500px; text-align: center; }
-.video-placeholder { aspect-ratio: 16/9; background: linear-gradient(135deg, #1f2937, #374151); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin-bottom: 15px; }
-.video-icon { font-size: 3.5em; margin-bottom: 15px; animation: pulse 2s infinite; }
-.consequence-text { font-size: 1.1em; color: #fbbf24; margin: 15px 0; font-weight: bold; }
-.skip-btn { padding: 12px 35px; background: white; color: black; border: none; border-radius: 20px; font-size: 1em; font-weight: bold; cursor: pointer; }
-
-.gameover-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%); display: none; align-items: center; justify-content: center; z-index: 999; padding: 15px; }
-.gameover-screen.active { display: flex; }
-.gameover-content { background: rgba(0,0,0,0.9); border: 3px solid #dc2626; border-radius: 15px; padding: 30px; max-width: 450px; text-align: center; }
-.gameover-title { font-size: 2.5em; color: #ef4444; margin-bottom: 15px; animation: shake 0.5s; }
-@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-
-.ending-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1f2937 0%, #4c1d95 50%, #1e3a8a 100%); display: none; align-items: center; justify-content: center; z-index: 999; padding: 15px; overflow-y: auto; }
-.ending-screen.active { display: flex; }
-.ending-content { background: white; color: black; border-radius: 15px; padding: 25px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y:auto; }
-.ending-title { font-size:1.8em; text-align:center; margin-bottom:12px; }
-.ending-desc { font-size:1em; text-align:center; margin-bottom:12px; color:#333; }
-.ending-score { text-align:center; font-size:1.6em; font-weight:bold; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:white; padding:12px; border-radius:8px; margin:15px 0; }
-.restart-btn { width:100%; padding:15px; background:linear-gradient(135deg,#22c55e,#3b82f6); border:none; border-radius:8px; color:white; font-size:1.1em; font-weight:bold; cursor:pointer; margin-top:15px; }
-
-.music-toggle { position:fixed; top:15px; right:15px; background:rgba(0,0,0,0.85); border:2px solid rgba(255,255,255,0.3); border-radius:50%; width:45px; height:45px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:999; font-size:1.3em; }
-.achievement-icon { position:fixed; bottom:15px; left:15px; background:rgba(0,0,0,0.85); border:2px solid rgba(255,215,0,0.7); border-radius:12px; padding:10px 15px; color:white; cursor:pointer; z-index:999; font-size:0.9em; }
-
-@keyframes pulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.1);opacity:0.8;} }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>If You Were President</title>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    #gameBox {
+      width: 90%;
+      max-width: 600px;
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      border: 2px solid #555;
+    }
+    .btn {
+      background: #0077ff;
+      border: none;
+      padding: 12px;
+      color: white;
+      margin: 10px 0;
+      width: 90%;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .stat-bar {
+      height: 12px;
+      background: red;
+      border-radius: 50px;
+      margin: 6px 0;
+      transition: width 0.6s;
+    }
+  </style>
 </head>
 <body>
 
-<div class="difficulty-select" id="difficultySelect">
-    <div class="difficulty-container">
-        <div class="difficulty-title">🏛️ IF YOU WERE PRESIDENT</div>
-        <div class="difficulty-subtitle">Choose Your Difficulty</div>
-        <div class="difficulty-options">
-            <div class="difficulty-btn difficulty-easy" onclick="startGame('easy')">
-                <div class="difficulty-btn-title">🟢 EASY MODE</div>
-                <div class="difficulty-btn-desc">Balanced • Forgiving • 5 rounds</div>
-            </div>
-            <div class="difficulty-btn difficulty-medium" onclick="startGame('medium')">
-                <div class="difficulty-btn-title">🟡 MEDIUM MODE</div>
-                <div class="difficulty-btn-desc">Higher stakes • 6 rounds</div>
-            </div>
-            <div class="difficulty-btn difficulty-hardcore" onclick="startGame('hardcore')">
-                <div class="difficulty-btn-title">🔴 HARDCORE MODE</div>
-                <div class="difficulty-btn-desc">⚠️ PERMADEATH • Timers • Hidden stats • 7 rounds</div>
-            </div>
-        </div>
-    </div>
-</div>
+  <h1>🇺🇸 If You Were President 🇺🇸</h1>
+  <p>Every decision shapes the world.</p>
 
-<div class="music-toggle" id="musicToggle" onclick="toggleMusic()">🔊</div>
-<div class="achievement-icon" onclick="showAchievements()">🏆 <span id="achievementCount">0</span></div>
+  <!-- Stats -->
+  <div style="width: 90%; max-width: 600px; text-align: left;">
+    Peace <div id="peace" class="stat-bar" style="width:50%"></div>
+    Rebellion <div id="rebellion" class="stat-bar" style="width:50%; background:orange"></div>
+    Morality <div id="morality" class="stat-bar" style="width:50%; background:green"></div>
+  </div>
 
-<div class="game-layout" id="gameLayout" style="display: none;">
-    <div class="stats-panel">
-        <div class="title">IF YOU WERE PRESIDENT <span class="difficulty-badge" id="difficultyBadge"></span></div>
-        <div class="round-info">Round <span id="roundNum">1</span> of <span id="maxRounds">5</span></div>
-        <div id="hardcoreWarning" class="hardcore-warning" style="display:none;">⚠️ Stat extremes = GAME OVER</div>
-        <div id="timerContainer" style="display: none;">
-            <div>⏱️ <span id="timeLeft">30</span>s</div>
-            <div class="timer-bar" id="timerBar"></div>
-        </div>
-
-        <div class="stat-bar">
-            <div class="stat-header"><span>🌍 SUPPORT</span><span id="supportNum">50%</span></div>
-            <div class="stat-track"><div class="stat-fill stat-support" id="supportBar" style="width:50%"></div></div>
-        </div>
-
-        <div class="stat-bar">
-            <div class="stat-header"><span>⚠️ REBELLION</span><span id="rebellionNum">50%</span></div>
-            <div class="stat-track"><div class="stat-fill stat-rebellion" id="rebellionBar" style="width:50%"></div></div>
-        </div>
-
-        <div class="stat-bar">
-            <div class="stat-header"><span>⚖️ MORALITY</span><span id="moralityNum">50%</span></div>
-            <div class="stat-track"><div class="stat-fill stat-morality" id="moralityBar" style="width:50%"></div></div>
-        </div>
-    </div>
-
-    <div class="president-area">
-        <div class="scenario-box">
-            <div class="scenario-title" id="scenarioTitle"></div>
-            <div class="scenario-text" id="scenarioText"></div>
-        </div>
-    </div>
-
-    <div class="choices" id="choicesContainer"></div>
-</div>
+  <div id="gameBox"></div>
 
 <script>
-let gameState = {
-    difficulty: null,
-    round: 0,
-    support: 50,
-    rebellion: 50,
-    morality: 50,
-    path: null,
-    history: []
-};
+let peace = 50;
+let rebellion = 50;
+let morality = 50;
+let round = 1;
 
-const difficultySettings = {
-    easy: { maxRounds: 5, multiplier: 1, badge: "EASY", badgeClass: "badge-easy" },
-    medium: { maxRounds: 6, multiplier: 1.5, badge: "MEDIUM", badgeClass: "badge-medium" },
-    hardcore: { maxRounds: 7, multiplier: 2, badge: "HARDCORE", badgeClass: "badge-hardcore" }
-};
+const questions = [
+  {
+    text: "A protest is happening outside the White House. Do you negotiate or send military?",
+    choices: [
+      { text: "Negotiate peacefully ✅", p: +10, r: -10, m: +5 },
+      { text: "Send military 🚨", p: -15, r: +20, m: -10 }
+    ]
+  },
+  {
+    text: "A corporation wants to buy protected land. Allow it?",
+    choices: [
+      { text: "Protect land 🌱", p: +5, r: -5, m: +15 },
+      { text: "Sell land for profit 💰", p: -5, r: +10, m: -15 }
+    ]
+  },
+  {
+    text: "World leaders ask you to disarm nukes. Do you?",
+    choices: [
+      { text: "Yes, for peace 🌍", p: +20, r: -10, m: +5 },
+      { text: "No, we stay strong 💣", p: -10, r: +15, m: -5 }
+    ]
+  }
+];
 
-const scenarios = {
-    0: {
-        title: "🏛️ The Global Crisis",
-        text: "Tensions rise. The economy struggles.",
-        choices: [
-            { title: "Raise Tariffs", icon:"📊", stats: [-3,5,-3], next:"1A" },
-            { title: "Invest in AI", icon:"🤖", stats: [3,3,5], next:"1A" },
-            { title: "Cut Spending", icon:"💰", stats: [-5,3,-3], next:"1A" }
-        ]
-    },
-    "1A": {
-        title: "⚡ Unrest Peaks",
-        text: "Protests intensify. What now?",
-        choices: [
-            { title:"Negotiate", icon:"🤝", stats:[3,-3,5], next:"2"},
-            { title:"Force Crackdown", icon:"🦾", stats:[-5,5,-5], next:"2"}
-        ]
-    },
-    2: {
-        title:"🌐 Allies Question You",
-        text:"Foreign nations demand answers.",
-        choices:[
-            { title:"Diplomacy", icon:"🕊️", stats:[5,-3,5], next:"end" },
-            { title:"Aggression", icon:"⚔️", stats:[-5,8,-5], next:"end" }
-        ]
-    }
-};
-
-function startGame(d){
-    gameState.difficulty = d;
-    document.getElementById("difficultySelect").classList.add("hidden");
-    document.getElementById("gameLayout").style.display = "flex";
-
-    const badge = document.getElementById("difficultyBadge");
-    badge.textContent = difficultySettings[d].badge;
-    badge.className = "difficulty-badge " + difficultySettings[d].badgeClass;
-
-    renderScenario();
+function updateStats() {
+  document.getElementById("peace").style.width = peace + "%";
+  document.getElementById("rebellion").style.width = rebellion + "%";
+  document.getElementById("morality").style.width = morality + "%";
 }
 
-function renderScenario(){
-    const scenario = scenarios[gameState.path || 0];
-    document.getElementById("scenarioTitle").textContent = scenario.title;
-    document.getElementById("scenarioText").textContent = scenario.text;
-
-    const c = document.getElementById("choicesContainer");
-    c.innerHTML = "";
-
-    scenario.choices.forEach((choice,i)=>{
-        let btn = document.createElement("div");
-        btn.className = "choice-btn";
-        btn.innerHTML = `<div style="font-size:2em">${choice.icon}</div><p>${choice.title}</p>`;
-        btn.onclick = ()=>makeChoice(i);
-        c.appendChild(btn);
-    });
+function showQuestion() {
+  if (round > 3) return endGame();
+  const q = questions[round - 1];
+  let html = `<h2>Round ${round}</h2><p>${q.text}</p>`;
+  q.choices.forEach((c, i) => {
+    html += `<button class='btn' onclick='choose(${i})'>${c.text}</button>`;
+  });
+  document.getElementById("gameBox").innerHTML = html;
 }
 
-function makeChoice(i){
-    const s = scenarios[gameState.path || 0];
-    const choice = s.choices[i];
-    const m = difficultySettings[gameState.difficulty].multiplier;
-
-    gameState.support = Math.min(100,Math.max(0, gameState.support + choice.stats[0]*m));
-    gameState.rebellion = Math.min(100,Math.max(0, gameState.rebellion + choice.stats[1]*m));
-    gameState.morality = Math.min(100,Math.max(0, gameState.morality + choice.stats[2]*m));
-    gameState.history.push(choice.title);
-    gameState.path = choice.next;
-    
-    updateStats();
-
-    if(choice.next === "end"){ setTimeout(showEnding,500); }
-    else renderScenario();
+function choose(i) {
+  const c = questions[round - 1].choices[i];
+  peace += c.p;
+  rebellion += c.r;
+  morality += c.m;
+  round++;
+  updateStats();
+  showQuestion();
 }
 
-function updateStats(){
-    document.getElementById("supportNum").textContent = Math.round(gameState.support)+"%";
-    document.getElementById("rebellionNum").textContent = Math.round(gameState.rebellion)+"%";
-    document.getElementById("moralityNum").textContent = Math.round(gameState.morality)+"%";
-    document.getElementById("supportBar").style.width = gameState.support+"%";
-    document.getElementById("rebellionBar").style.width = gameState.rebellion+"%";
-    document.getElementById("moralityBar").style.width = gameState.morality+"%";
+function endGame() {
+  let result = "";
+  if (peace > 70 && morality > 70) result = "🌟 Universal Peace Ending 🌟";
+  else if (rebellion < 20) result = "✅ World Peace Ending";
+  else if (rebellion > 80) result = "🔥 World War III Ending 😬";
+  else result = "🤖 AI Domination Ending";
+
+  document.getElementById("gameBox").innerHTML =
+   `<h2>${result}</h2><p>You have finished the game!</p>`;
 }
 
-function showEnding(){
-    let s=gameState.support, r=gameState.rebellion, m=gameState.morality;
-    let msg="⚖️ Mixed Results — The world debates your leadership.";
-    if(s>=70 && m>=70) msg="🪐 Universal Peace — You led humanity to harmony.";
-    if(r>=70) msg="☢️ Chaos — Rebellion consumed society.";
-    if(m<=30) msg="😈 Corruption — Power changed you.";
-
-    alert(msg + `\n\nFinal Stats:\nSupport: ${Math.round(s)}%\nRebellion: ${Math.round(r)}%\nMorality: ${Math.round(m)}%`);
-    location.reload();
-}
-
-function toggleMusic(){ alert("🔇 Music toggle coming soon!"); }
-function showAchievements(){ alert("🏆 Achievements coming soon!"); }
+// Start
+updateStats();
+showQuestion();
 </script>
 
 </body>
